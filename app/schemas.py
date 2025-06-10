@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 class ContactBase(BaseModel):
