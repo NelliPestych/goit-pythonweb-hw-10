@@ -3,7 +3,7 @@ uvicorn
 sqlalchemy
 psycopg2-binary
 pydantic
-dotenv
+python-dotenv
 pydantic[email]
 fastapi-mail
 python-jose[cryptography]
