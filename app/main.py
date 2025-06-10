@@ -5,7 +5,7 @@ from fastapi_limiter import FastAPILimiter
 from redis.asyncio import Redis
 from dotenv import load_dotenv
 import os
-from app.routers import contacts, auth, users # Додаємо users
+from app.routers import contacts, auth, users
 from app.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,9 +16,8 @@ app = FastAPI(title="Contacts API")
 
 # CORS
 origins = [
-    "http://localhost:8000", # Дозволені походження для вашого фронтенду
+    "http://localhost:8000",
     "http://127.0.0.1:8000",
-    # Додайте інші, якщо потрібно
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -34,6 +33,6 @@ async def startup():
     redis = Redis(host=os.getenv("REDIS_HOST", "localhost"), port=int(os.getenv("REDIS_PORT", 6379)), db=0, encoding="utf-8", decode_responses=True)
     await FastAPILimiter.init(redis)
 app.include_router(contacts.router, prefix="/contacts", tags=["Contacts"])
-app.include_router(auth.router, prefix="/api", tags=["Auth"]) # Додаємо маршрути для аутентифікації
-app.include_router(users.router, prefix="/api", tags=["Users"]) # Додаємо маршрути для користувачів
+app.include_router(auth.router, prefix="/api", tags=["Auth"])
+app.include_router(users.router, prefix="/api", tags=["Users"])
 

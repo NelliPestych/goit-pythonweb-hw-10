@@ -1,9 +1,8 @@
-# app/email.py
 from typing import List
 from pathlib import Path
 
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from fastapi import BackgroundTasks, Depends, HTTPException, status
+from fastapi import BackgroundTasks, HTTPException, status
 from pydantic import EmailStr
 
 from dotenv import load_dotenv
@@ -22,21 +21,20 @@ conf = ConnectionConfig(
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
-    TEMPLATE_FOLDER=Path(__file__).parent / 'templates', # Створимо папку templates
+    TEMPLATE_FOLDER=Path(__file__).parent / 'templates',
 )
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(email: EmailStr, username: str, host: str, token: str):
     try:
-        token_verification = "ваш_токен_верифікації_з_JWT_або_іншого_механізму" # Згенеруйте токен
         message = MessageSchema(
             subject="Confirm your email for Contacts App",
             recipients=[email],
-            template_body={"host": host, "username": username, "token": token_verification},
+            template_body={"host": host, "username": username, "token": token},
             subtype=MessageType.html,
         )
 
         fm = FastMail(conf)
         await fm.send_message(message, template_name="email_verification.html")
     except Exception as e:
-        print(f"Error sending email: {e}") # Для дебагу
+        print(f"Error sending email: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error sending email")

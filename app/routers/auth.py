@@ -1,19 +1,18 @@
-# app/routers/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from app.auth import create_email_verification_token, decode_email_verification_token # Будемо додавати
+from app.auth import create_email_verification_token, decode_email_verification_token
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from app import schemas, crud, deps, models
-from app.auth import verify_password, create_access_token, get_current_user # Оновлення імпорту
-from app.email import send_email # Заздалегідь імпортуємо, будемо реалізовувати пізніше
+from app.auth import verify_password, create_access_token, get_current_user
+from app.email import send_email
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/confirm_email/{token}")
 async def confirm_email(token: str, db: Session = Depends(deps.get_db)):
-    email = decode_email_verification_token(token) # Розшифровуємо токен
+    email = decode_email_verification_token(token)
     if email is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired verification token")
 
@@ -39,8 +38,7 @@ async def register_user(
 
     new_user = crud.create_user(db=db, user=user)
 
-    # Generate and send email verification token
-    token_verification = create_email_verification_token({"sub": new_user.email}) # Використовуйте JWT для верифікації
+    token_verification = create_email_verification_token({"sub": new_user.email})
     background_tasks.add_task(send_email, new_user.email, new_user.email.split('@')[0], f"{request.base_url}api/auth/confirm_email/{token_verification}")
 
     return new_user
@@ -57,23 +55,21 @@ async def login_for_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # Якщо ми реалізуємо верифікацію пошти, потрібно перевіряти поле `confirmed`
-    # if not user.confirmed:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Email not confirmed",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
+    if not user.confirmed:
+         raise HTTPException(
+             status_code=status.HTTP_401_UNAUTHORIZED,
+             detail="Email not confirmed",
+             headers={"WWW-Authenticate": "Bearer"},
+         )
 
-    access_token_expires = timedelta(minutes=30) # Використовуйте константу з auth.py
+    access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/current_user", response_model=schemas.UserOut) # або /me
+@router.get("/current_user", response_model=schemas.UserOut)
 async def read_users_me(current_user: models.User = Depends(get_current_user), db: Session = Depends(deps.get_db)):
-    # get_current_user повертає словник, потрібно отримати повного користувача з БД
     user_from_db = crud.get_user_by_email(db, email=current_user["email"])
     if not user_from_db:
         raise HTTPException(status_code=404, detail="User not found")

@@ -1,4 +1,3 @@
-# app/routers/users.py (або розширте auth.py)
 from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from app import deps, crud, models, schemas
@@ -10,7 +9,7 @@ import os
 
 load_dotenv()
 
-router = APIRouter(prefix="/users", tags=["Users"]) # Новий роутер для користувачів
+router = APIRouter(prefix="/users", tags=["Users"])
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
