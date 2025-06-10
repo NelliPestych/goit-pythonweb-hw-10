@@ -25,21 +25,25 @@ async def confirm_email(token: str, db: Session = Depends(deps.get_db)):
     crud.update_user_confirmation(db, user, True)
     return {"message": "Email successfully confirmed"}
 
-@router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
-async def register_user(
-    user: schemas.UserCreate,
-    background_tasks: BackgroundTasks,
-    request: Request,
-    db: Session = Depends(deps.get_db)
-):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
 
-    new_user = crud.create_user(db=db, user=user)
+@router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
+async def register(
+        body: schemas.UserCreate,
+        background_tasks: BackgroundTasks,
+        request: Request,
+        db: Session = Depends(deps.get_db)
+):
+    exist_user = crud.get_user_by_email(db, body.email)
+    if exist_user:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
+    new_user = crud.create_user(db, body)
 
     token_verification = create_email_verification_token({"sub": new_user.email})
-    background_tasks.add_task(send_email, new_user.email, new_user.email.split('@')[0], f"{request.base_url}api/auth/confirm_email/{token_verification}")
+    host = request.base_url.hostname
+
+    print(f"Verification URL for {new_user.email}: http://{host}:8000/api/auth/confirm_email/{token_verification}")
+
+    background_tasks.add_task(send_email, new_user.email, new_user.email, host, token_verification)
 
     return new_user
 

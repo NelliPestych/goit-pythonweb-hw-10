@@ -41,11 +41,11 @@ services:
       MAIL_PORT: 587
       MAIL_SERVER: "smtp.example.com"
 
-      CLOUDINARY_CLOUD_NAME: "your_cloud_name"
-      CLOUDINARY_API_KEY: "your_api_key"
-      CLOUDINARY_API_SECRET: "your_api_secret"
+      CLOUDINARY_CLOUD_NAME: "dq4qdzogr"
+      CLOUDINARY_API_KEY: "521687467524443"
+      CLOUDINARY_API_SECRET: "pjgXuaM1WJwRGbQZmr2zYy6-GKg"
 
-      REDIS_HOST: "redis" # Ім'я сервісу Redis у Docker Compose
+      REDIS_HOST: "redis"
       REDIS_PORT: 6379
 
 volumes:
