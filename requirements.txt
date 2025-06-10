@@ -5,3 +5,9 @@ psycopg2-binary
 pydantic
 dotenv
 pydantic[email]
+fastapi-mail
+python-jose[cryptography]
+passlib[bcrypt]
+fastapi-limiter
+redis
+cloudinary

@@ -21,3 +21,28 @@ class ContactOut(ContactBase):
 
     class Config:
         orm_mode = True
+
+class UserBase(BaseModel):
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str
+
+class UserLogin(UserBase):
+    password: str
+
+class UserOut(UserBase):
+    id: int
+    confirmed: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class RequestEmail(BaseModel):
+    email: EmailStr
